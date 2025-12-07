@@ -12,11 +12,12 @@ A modern approach to composing Express middleware with declarative chaining, bui
 
 - 🔗 **Fluent API** - Compose middleware with method chaining
 - 🛡️ **Type-Safe** - Full TypeScript support with generic type inference
-- ✅ **Validation** - Built-in Zod schema validation for body/query/params
-- ⚡ **Rate Limiting** - Per-endpoint rate limiting with pluggable stores
-- 💾 **Caching** - Response caching with tag-based invalidation
-- 🔍 **Request Context** - AsyncLocalStorage-based request-scoped data
-- 🚨 **Error Handling** - Comprehensive error boundary middleware
+- ✅ **Validation** - Built-in Zod schema validation for body/query/params ✅
+- ⚡ **Rate Limiting** - Per-endpoint rate limiting with pluggable stores ✅
+- 💾 **Caching** - Response caching with tag-based invalidation (coming soon)
+- 🔍 **Request Context** - AsyncLocalStorage-based request-scoped data ✅
+- 🚨 **Error Handling** - Comprehensive error boundary middleware ✅
+- 🗄️ **Pluggable Stores** - Abstract store interface with MemoryStore included ✅
 - 🎯 **Zero Dependencies** - Core package has no runtime dependencies (peer deps only)
 
 ## Installation
@@ -170,6 +171,67 @@ const apiChain = chain()
   .build();
 ```
 
+### `.rateLimit(config)`
+
+Adds rate limiting to protect your endpoints from abuse.
+
+```typescript
+import { chain, MemoryStore } from 'express-middleware-chain';
+
+// Basic rate limiting
+chain()
+  .rateLimit({
+    limit: 100,        // 100 requests
+    window: '15m'      // per 15 minutes
+  })
+  .build();
+
+// Advanced configuration
+const store = new MemoryStore();
+
+chain()
+  .rateLimit({
+    limit: 10,
+    window: '1m',
+    store,                                    // Custom store
+    keyGenerator: (req) => req.user?.id,     // Rate limit per user
+    message: 'Too many requests',
+    onLimitReached: (req, res) => {
+      console.log(`Rate limit exceeded for ${req.ip}`);
+      res.status(429).json({ error: 'Slow down!' });
+    }
+  })
+  .build();
+```
+
+**Configuration:**
+- `limit` (number) - Maximum requests allowed
+- `window` (string | number) - Time window ('15m', '1h', '1d' or milliseconds)
+- `store` (Store) - Storage backend (default: shared MemoryStore)
+- `keyGenerator` (function) - Custom key function (default: IP address)
+- `message` (string) - Custom error message
+- `skipFailedRequests` (boolean) - Don't count 4xx/5xx responses
+- `skipSuccessfulRequests` (boolean) - Don't count 2xx/3xx responses
+- `onLimitReached` (function) - Custom handler when limit exceeded
+
+**Response Headers:**
+```
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 45
+X-RateLimit-Reset: 2025-12-08T02:15:00.000Z
+Retry-After: 123
+```
+
+**Per-Endpoint Limiting:**
+
+Rate limits are automatically isolated per endpoint:
+
+```typescript
+// Each endpoint has its own rate limit
+app.get('/api/users', chain().rateLimit({ limit: 100, window: '15m' }).build(), handler);
+app.post('/api/users', chain().rateLimit({ limit: 10, window: '15m' }).build(), handler);
+```
+
 ### `.errorBoundary(handler?)`
 
 Adds an error boundary to catch and handle errors.
@@ -245,6 +307,91 @@ const requestId = RequestContext.getRequestId();
 - ✅ Zero global state pollution
 
 **Requirements:** Node.js 16+ (for AsyncLocalStorage)
+
+## Stores
+
+The package includes a pluggable store system for rate limiting and caching state.
+
+### MemoryStore
+
+Built-in in-memory store for single-process applications:
+
+```typescript
+import { MemoryStore } from 'express-middleware-chain';
+
+const store = new MemoryStore({
+  cleanupIntervalMs: 60000,  // Cleanup every minute
+  maxSize: 10000             // Max 10,000 entries (LRU eviction)
+});
+
+// Use with rate limiting
+chain()
+  .rateLimit({ limit: 100, window: '15m', store })
+  .build();
+```
+
+**Features:**
+- ✅ TTL support with automatic expiration
+- ✅ Tag-based invalidation
+- ✅ Pattern matching for bulk deletion
+- ✅ Max size limits with LRU-like eviction
+- ✅ Periodic cleanup of expired entries
+
+**Store Methods:**
+
+```typescript
+// Get/Set with TTL
+await store.set('key', { data: 'value' }, 60000);  // 60 second TTL
+const value = await store.get('key');
+
+// Rate limiting
+const result = await store.increment('counter', 60000);
+console.log(result.count, result.resetAt);
+
+// Tag-based invalidation
+await store.set('user:1', { data: user }, 3600000, { tags: ['users'] });
+await store.invalidateByTag('users');  // Clear all 'users' entries
+
+// Pattern matching
+await store.clear('user:*');  // Clear all keys starting with 'user:'
+
+// Cleanup
+store.destroy();  // Stop cleanup interval
+```
+
+### Custom Stores
+
+Implement the `Store` interface for Redis, database, or other backends:
+
+```typescript
+import type { Store, StoreValue, RateLimitResult } from 'express-middleware-chain';
+
+class RedisStore implements Store {
+  async get(key: string): Promise<StoreValue | undefined> {
+    // Implementation
+  }
+
+  async set(key: string, value: StoreValue, ttl?: number): Promise<void> {
+    // Implementation
+  }
+
+  async increment(key: string, ttl?: number): Promise<RateLimitResult> {
+    // Implementation
+  }
+
+  async delete(key: string): Promise<void> {
+    // Implementation
+  }
+
+  async invalidateByTag(tag: string): Promise<void> {
+    // Implementation
+  }
+
+  async clear(pattern?: string): Promise<void> {
+    // Implementation
+  }
+}
+```
 
 ## Advanced Usage
 
@@ -339,37 +486,39 @@ src/
 ├── middleware/           # Built-in middleware
 │   ├── validation.ts     # Zod validation (✅ implemented)
 │   ├── errorBoundary.ts  # Error handling (✅ implemented)
-│   ├── rateLimit.ts      # Rate limiting (🚧 planned)
+│   ├── rateLimit.ts      # Rate limiting (✅ implemented)
 │   ├── cache.ts          # Response caching (🚧 planned)
 │   └── index.ts
 ├── context/              # Request context
 │   └── RequestContext.ts # AsyncLocalStorage wrapper (✅ implemented)
-├── stores/               # Store implementations (🚧 planned)
+├── stores/               # Store implementations (✅ implemented)
 │   ├── Store.ts          # Store interface
-│   └── MemoryStore.ts    # Built-in in-memory store
-└── utils/                # Helper utilities (🚧 planned)
+│   ├── MemoryStore.ts    # Built-in in-memory store
+│   └── index.ts
+└── utils/                # Helper utilities (✅ implemented)
     ├── duration.ts       # Parse duration strings
-    └── keyGenerator.ts   # Cache/rate limit key utilities
+    ├── keyGenerator.ts   # Cache/rate limit key utilities
+    └── index.ts
 ```
 
 ## Roadmap
 
 See [AGENTS.md](./AGENTS.md) for the full development roadmap and implementation status.
 
-### ✅ Implemented
+### ✅ Implemented (v0.1.0)
 - [x] Core ChainBuilder with fluent API
 - [x] Zod validation middleware
 - [x] Error boundary middleware
 - [x] Request context (AsyncLocalStorage)
 - [x] Type-safe generic inference
 - [x] Chain composition
+- [x] **Rate limiting middleware** (NEW in v0.1.0)
+- [x] **Store interface and MemoryStore** (NEW in v0.1.0)
+- [x] **Duration parsing utilities** (NEW in v0.1.0)
+- [x] **Key generation utilities** (NEW in v0.1.0)
 
 ### 🚧 In Progress
-- [ ] Rate limiting middleware
 - [ ] Response caching middleware
-- [ ] Store interface and MemoryStore
-- [ ] Duration parsing utilities
-- [ ] Cache key generation
 
 ### 📋 Planned
 - [ ] Redis store adapter

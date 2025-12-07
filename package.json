@@ -1,6 +1,6 @@
 {
   "name": "express-middleware-chain",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Fluent, composable middleware orchestration for Express with TypeScript.",
   "license": "MIT",
   "author": "Ian Pinto (https://github.com/iAn-P1nt0)",

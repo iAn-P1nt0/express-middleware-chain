@@ -2,6 +2,7 @@ import type { ErrorRequestHandler, RequestHandler } from 'express';
 import type { Middleware, ValidationSchemas } from '../types';
 import { createValidationMiddleware } from '../middleware/validation';
 import { createErrorBoundaryMiddleware } from '../middleware/errorBoundary';
+import { createRateLimitMiddleware, type RateLimitConfig } from '../middleware/rateLimit';
 
 export class ChainBuilder<TBody = unknown, TQuery = unknown, TParams = unknown> {
   private readonly middlewares: Middleware[] = [];
@@ -19,6 +20,11 @@ export class ChainBuilder<TBody = unknown, TQuery = unknown, TParams = unknown> 
 
   compose(builder: ChainBuilder): this {
     this.middlewares.push(...builder.build());
+    return this;
+  }
+
+  rateLimit(config: RateLimitConfig): this {
+    this.middlewares.push(createRateLimitMiddleware(config));
     return this;
   }
 

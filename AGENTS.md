@@ -22,18 +22,18 @@ This is **express-middleware-chain**, a TypeScript npm package for fluent, compo
 
 ## Implementation Status
 
-### ✅ Completed (4/7 core tasks)
+### ✅ Completed (6/7 core tasks)
 - ✅ **ChainBuilder** - Fluent API with generic type inference
 - ✅ **Validation Middleware** - Zod schema validation
 - ✅ **Error Boundary** - Error handling wrapper
 - ✅ **RequestContext** - AsyncLocalStorage-based context
+- ✅ **Rate Limiting** - Per-endpoint rate limiting (v0.1.0)
+- ✅ **Store Interface** - Pluggable storage backends with MemoryStore (v0.1.0)
 
-### 🚧 Planned (3/7 core tasks)
-- 📋 **Rate Limiting** - Per-endpoint rate limiting
+### 🚧 Planned (1/7 core tasks)
 - 📋 **Response Caching** - Cached responses with invalidation
-- 📋 **Store Interface** - Pluggable storage backends
 
-**Progress**: 57% complete (4/7 core features implemented)
+**Progress**: 86% complete (6/7 core features implemented)
 
 ---
 
