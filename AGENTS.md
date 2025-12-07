@@ -20,6 +20,23 @@ This is **express-middleware-chain**, a TypeScript npm package for fluent, compo
 
 ---
 
+## Implementation Status
+
+### ✅ Completed (4/7 core tasks)
+- ✅ **ChainBuilder** - Fluent API with generic type inference
+- ✅ **Validation Middleware** - Zod schema validation
+- ✅ **Error Boundary** - Error handling wrapper
+- ✅ **RequestContext** - AsyncLocalStorage-based context
+
+### 🚧 Planned (3/7 core tasks)
+- 📋 **Rate Limiting** - Per-endpoint rate limiting
+- 📋 **Response Caching** - Cached responses with invalidation
+- 📋 **Store Interface** - Pluggable storage backends
+
+**Progress**: 57% complete (4/7 core features implemented)
+
+---
+
 ## Architecture Overview
 
 ```
@@ -43,9 +60,11 @@ src/
 
 ## Implementation Tasks
 
-### Task: Implement ChainBuilder
+### ✅ Task: Implement ChainBuilder [COMPLETED]
 
 **File**: `src/chain/ChainBuilder.ts`
+
+**Status**: ✅ Fully implemented
 
 **Requirements**:
 - Fluent method chaining with proper `this` returns
@@ -78,9 +97,11 @@ export class ChainBuilder<TBody = unknown, TQuery = unknown, TParams = unknown> 
 
 ---
 
-### Task: Implement Validation Middleware
+### ✅ Task: Implement Validation Middleware [COMPLETED]
 
 **File**: `src/middleware/validation.ts`
+
+**Status**: ✅ Fully implemented
 
 **Requirements**:
 - Accept Zod schemas for body, query, params
@@ -122,9 +143,11 @@ export function createValidationMiddleware<B, Q, P>(
 
 ---
 
-### Task: Implement Rate Limiting
+### 🚧 Task: Implement Rate Limiting [PLANNED]
 
 **File**: `src/middleware/rateLimit.ts`
+
+**Status**: 📋 Not yet implemented
 
 **Requirements**:
 - Per-endpoint rate limiting (not global)
@@ -152,9 +175,11 @@ const key = `ratelimit:${req.route?.path || req.path}:${keyGenerator(req)}`;
 
 ---
 
-### Task: Implement Response Caching
+### 🚧 Task: Implement Response Caching [PLANNED]
 
 **File**: `src/middleware/cache.ts`
+
+**Status**: 📋 Not yet implemented
 
 **Requirements**:
 - Cache responses by request key
@@ -204,9 +229,11 @@ export function createCacheMiddleware(
 
 ---
 
-### Task: Implement Error Boundary
+### ✅ Task: Implement Error Boundary [COMPLETED]
 
 **File**: `src/middleware/errorBoundary.ts`
+
+**Status**: ✅ Fully implemented
 
 **Requirements**:
 - Wrap middleware in try/catch
@@ -248,9 +275,11 @@ export function wrapWithErrorBoundary(
 
 ---
 
-### Task: Implement RequestContext
+### ✅ Task: Implement RequestContext [COMPLETED]
 
 **File**: `src/context/RequestContext.ts`
+
+**Status**: ✅ Fully implemented
 
 **Requirements**:
 - Use AsyncLocalStorage for request-scoped data
@@ -298,9 +327,11 @@ export const RequestContext = {
 
 ---
 
-### Task: Implement Store Interface
+### 🚧 Task: Implement Store Interface [PLANNED]
 
 **Files**: `src/stores/Store.ts`, `src/stores/MemoryStore.ts`
+
+**Status**: 📋 Not yet implemented
 
 **Store Interface**:
 ```typescript
