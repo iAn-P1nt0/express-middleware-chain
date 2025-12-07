@@ -34,7 +34,7 @@ export class ChainBuilder<TBody = unknown, TQuery = unknown, TParams = unknown> 
   private wrapAsync(handler: RequestHandler): RequestHandler {
     return (req, res, next) => {
       try {
-        const result = handler(req, res, next);
+        const result = handler(req, res, next) as unknown;
         if (result && typeof (result as Promise<unknown>).then === 'function') {
           (result as Promise<unknown>).catch((error) => next(error));
         }

@@ -53,7 +53,7 @@ describe('createValidationMiddleware', () => {
       (req: Request, res: Response) => {
         res.json({
           userId: (req.params as { userId: string }).userId,
-          page: (req.query as { page: number }).page
+          page: (req.query as unknown as { page: number }).page
         });
       }
     );

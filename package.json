@@ -3,7 +3,29 @@
   "version": "0.0.1",
   "description": "Fluent, composable middleware orchestration for Express with TypeScript.",
   "license": "MIT",
-  "author": "",
+  "author": "Ian Pinto (https://github.com/iAn-P1nt0)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iAn-P1nt0/express-middleware-chain.git"
+  },
+  "bugs": {
+    "url": "https://github.com/iAn-P1nt0/express-middleware-chain/issues"
+  },
+  "homepage": "https://github.com/iAn-P1nt0/express-middleware-chain#readme",
+  "keywords": [
+    "express",
+    "middleware",
+    "chain",
+    "fluent",
+    "typescript",
+    "validation",
+    "zod",
+    "error-handling",
+    "request-context",
+    "async-local-storage",
+    "composable",
+    "type-safe"
+  ],
   "sideEffects": false,
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -13,11 +35,12 @@
   ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./stores": {
+      "types": "./dist/stores/index.d.ts",
       "import": "./dist/stores/index.mjs",
       "require": "./dist/stores/index.js"
     }
@@ -26,7 +49,8 @@
     "build": "tsup",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build"
   },
   "peerDependencies": {
     "express": "^4.18.0 || ^5.0.0",

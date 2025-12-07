@@ -11,7 +11,7 @@ interface SegmentResult<T> {
 export function createValidationMiddleware<TBody, TQuery, TParams>(
   schemas: ValidationSchemas<TBody, TQuery, TParams>
 ): RequestHandler {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     const errors: ValidationError[] = [];
 
     const bodyResult = runValidation(schemas.body, req.body);
@@ -25,18 +25,19 @@ export function createValidationMiddleware<TBody, TQuery, TParams>(
     if (!queryResult.success && queryResult.issues) {
       errors.push({ location: 'query', issues: queryResult.issues });
     } else if (queryResult.data !== undefined) {
-      req.query = queryResult.data as unknown;
+      (req.query as unknown) = queryResult.data;
     }
 
     const paramsResult = runValidation(schemas.params, req.params);
     if (!paramsResult.success && paramsResult.issues) {
       errors.push({ location: 'params', issues: paramsResult.issues });
     } else if (paramsResult.data !== undefined) {
-      req.params = paramsResult.data as unknown;
+      (req.params as unknown) = paramsResult.data;
     }
 
     if (errors.length > 0) {
-      return res.status(400).json({ errors });
+      res.status(400).json({ errors });
+      return;
     }
 
     next();

@@ -1,0 +1,50 @@
+# Source files (only include built dist/)
+src/
+test/
+
+# Configuration files
+tsconfig.json
+tsup.config.ts
+vitest.config.ts
+.eslintrc*
+.prettierrc*
+
+# Internal documentation
+AGENTS.md
+CLAUDE.md
+.github/
+
+# Development files
+*.log
+*.swp
+*.swo
+.DS_Store
+.vscode/
+.idea/
+
+# Git files
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+.circleci/
+.travis.yml
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Lock files (keep pnpm-lock.yaml out of package)
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+
+# Node modules
+node_modules/
